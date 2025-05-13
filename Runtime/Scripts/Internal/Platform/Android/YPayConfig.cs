@@ -1,7 +1,5 @@
 // Yandex Pay InApps Plugin.
 
-using YPay.Base;
-
 namespace YPay.Android
 {
     internal class YPayConfig : IAndroidObject

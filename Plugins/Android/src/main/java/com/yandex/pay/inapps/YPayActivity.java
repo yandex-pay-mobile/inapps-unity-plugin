@@ -17,24 +17,43 @@ public class YPayActivity extends ComponentActivity {
     private static final String ON_RESULT = "OnResult";
     private static final String PAYMENT_URL_KEY = "paymentUrl";
     private static PaymentSession _paymentSession;
+    private static YPayActivityResultListener _resultListener;
 
     public static void setPaymentSession(PaymentSession paymentSession) {
         _paymentSession = paymentSession;
+    }
+
+    public static void clearPaymentSession() {
+        _paymentSession = null;
+    }
+
+    public static void setResultListener(YPayActivityResultListener resultListener) {
+        _resultListener = resultListener;
+    }
+
+    public static void clearResultListener() {
+        _resultListener = null;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (_paymentSession == null) {
+            sendResult(new YPayResult.Failure("config data not provided", null));
+            finish();
+            return;
+        }
+
         String paymentUrl = getIntent().getStringExtra(PAYMENT_URL_KEY);
         if (paymentUrl == null) {
-            sendToUnity(new YPayResult.Failure("Payment URL is null", null));
+            sendResult(new YPayResult.Failure("incorrect payment url", null));
             finish();
             return;
         }
 
         YPayLauncher launcher = new YPayLauncher(this, result -> {
-            sendToUnity(result);
+            sendResult(result);
             finish();
         });
         PaymentData paymentData = new PaymentData.PaymentUrlFlowData(paymentUrl, null);
@@ -43,9 +62,11 @@ public class YPayActivity extends ComponentActivity {
         launcher.launch(params);
     }
 
-    private void sendToUnity(YPayResult result) {
+    private void sendResult(YPayResult result) {
         String message = resultToString(result);
-        UnityPlayer.UnitySendMessage(YPAY_BUTTON, ON_RESULT, message);
+        if (_resultListener != null) {
+            _resultListener.OnResult(message);
+        }
     }
 
     private String resultToString(YPayResult result) {

@@ -7,7 +7,10 @@ The plugin is available for Android and includes native Yandex Pay InApps SDK.
 
 
 ## Documentation
-Documentation could be found at [Yandex Pay official site](https://pay.yandex.ru/docs/en/about).
+Documentation could be found at [Yandex Pay official site](https://pay.yandex.ru/docs/en/custom/inapps/unity).
+
+## Changelog	
+Changelog could be found at [Yandex Pay official site](https://pay.yandex.ru/docs/en/custom/inapps/unity/changelog).
 
 ## Dependency resolver
 The plugin uses EDM4U to resolve native dependencies for Android.

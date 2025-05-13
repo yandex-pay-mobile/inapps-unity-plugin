@@ -1,7 +1,6 @@
 // Yandex Pay InApps Plugin.
 
 using UnityEngine;
-using YPay.Base;
 
 namespace YPay.Android
 {

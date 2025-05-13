@@ -5,12 +5,12 @@ using UnityEngine;
 namespace YPay
 {
     /// <summary>
-    /// Result passed by Yandex Pay Library.
+    /// Represents the result passed by Yandex Pay Library.
     /// </summary>
     public interface IYPayResult
     {
         /// <summary>
-        /// Payment flow completed successfully.
+        /// Represents a successful payment result.
         /// </summary>
         public class Success : IYPayResult
         {
@@ -18,21 +18,25 @@ namespace YPay
             /// Order identifier
             /// </summary>
             public string OrderId;
+
+            public Success(string orderId) => OrderId = orderId;
         }
 
         /// <summary>
-        /// Payment flow was completed with an error.
+        /// Represents a failed payment result.
         /// </summary>
-        public record Failure : IYPayResult
+        public class Failure : IYPayResult
         {
             /// <summary>
             /// Failure details
             /// </summary>
             public string ErrorMessage;
+
+            public Failure(string errorMessage) => ErrorMessage = errorMessage;
         }
 
         /// <summary>
-        /// Payment flow was canceled.
+        /// Represents a cancelled payment result.
         /// </summary>
         public class Cancelled : IYPayResult { }
     }
