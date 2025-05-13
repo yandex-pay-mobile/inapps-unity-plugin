@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace YPay
 {
     /// <summary>
-    /// Class for processing the payment result.
+    /// Interface for handling payment results.
     /// </summary>
     public interface IYPayResultListener
     {
@@ -14,5 +14,5 @@ namespace YPay
         /// </summary>
         /// <param name="result">Payment result: IYPayResult.Success, IYPayResult.Failure or IYPayResult.Cancelled</param>
         public void OnPaymentResult(IYPayResult result);
-    }   
+    }
 }

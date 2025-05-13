@@ -2,7 +2,7 @@
 
 using UnityEngine;
 
-namespace YPay.Base 
+namespace YPay.Android 
 {
     internal abstract class IAndroidObject
     {

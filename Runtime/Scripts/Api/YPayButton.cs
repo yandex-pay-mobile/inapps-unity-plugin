@@ -15,75 +15,69 @@ namespace YPay
     public class YPayButton : Button
     {
         /// <summary>
-        /// Merchant identifier
+        /// The unique identifier for the merchant.
         /// </summary>
         public string MerchantId;
 
         /// <summary>
-        /// Merchant name
+        /// The name of the merchant.
         /// </summary>
         public string MerchantName;
 
         /// <summary>
-        /// Merchant URL
+        /// The URL associated with the merchant.
         /// </summary>
         public string MerchantUrl;
 
         /// <summary>
-        /// Is sandbox mode enabled
+        /// Indicates whether the configuration is for the sandbox environment.
         /// </summary>
         public bool IsSandbox;
 
-        YPayPlugin plugin;
-        bool isPaymentInProgress;
-        IYPayResultListener _paymentResultListener;
-        IYPayDataProvider _paymentDataProvider;
+        IYPayResultListener paymentResultListener;
+        IYPayDataProvider paymentDataProvider;
 
         protected override void Start()
         {
             base.Start();
             onClick.AddListener(async () => await StartPaymentAsync());
 
-            plugin = InitPlugin();
+            InitPlugin();
         }
 
         protected override void Awake()
         {
-            _paymentResultListener = GetComponent<IYPayResultListener>();
-            _paymentDataProvider = GetComponent<IYPayDataProvider>();
-            
-            if (_paymentDataProvider == null)
+            paymentResultListener = GetComponent<IYPayResultListener>();
+            paymentDataProvider = GetComponent<IYPayDataProvider>();
+
+            if (paymentResultListener == null)
             {
                 UnityEngine.Debug.LogError($"The implementation of the IYPayResultListener was not found for the {name}.");
             }
-            if (_paymentDataProvider == null)
+            if (paymentDataProvider == null)
             {
                 UnityEngine.Debug.LogError($"The implementation of the IYPayDataProvider was not found for the {name}.");
             }
         }
 
-        public void OnResult(string result)
+        protected override void OnDestroy()
         {
-            isPaymentInProgress = false;
-            _paymentResultListener.OnPaymentResult(YPayResultParser.Parse(result));
+            YPayPlugin.Deinitialize();
         }
 
-        private YPayPlugin InitPlugin()
+        private void InitPlugin()
         {
             var config = new YPayConfig(
                 MerchantId: MerchantId,
                 MerchantName: MerchantName,
-                MerchantUrl: MerchantUrl,
-                PaymentSessionKey: _paymentDataProvider.GetPaymentSessionKey(),
+                MerchantUrl: MerchantUrl ?? "",
                 IsSandbox: IsSandbox);
-            return new YPayPlugin(config);
+            YPayPlugin.Init(config);
         }
 
         private async Task StartPaymentAsync()
         {
-            if (isPaymentInProgress) return;
-            isPaymentInProgress = true;
-            plugin.StartPayment(paymentUrl: await _paymentDataProvider.GetPaymentUrlAsync());
+            YPayPlugin.StartPayment(resultListener: paymentResultListener, paymentUrl: await paymentDataProvider.GetPaymentUrlAsync());
         }
     }
 }
