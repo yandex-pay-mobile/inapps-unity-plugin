@@ -1,7 +1,7 @@
 // Yandex Pay InApps Plugin.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace YPay
@@ -34,12 +34,17 @@ namespace YPay
         /// </summary>
         public bool IsSandbox;
 
+        private static Dictionary<string, int> paymentSessionsCount = new Dictionary<string, int>();
+
         IYPayResultListener paymentResultListener;
         IYPayDataProvider paymentDataProvider;
+        string paymentSessionKey;
 
         protected override void Start()
         {
             base.Start();
+
+            onClick.RemoveAllListeners(); 
             onClick.AddListener(async () => await StartPaymentAsync());
 
             InitPlugin();
@@ -62,7 +67,11 @@ namespace YPay
 
         protected override void OnDestroy()
         {
-            YPayPlugin.Deinitialize();
+            DecrementPaymentSessionsCount();
+            if (paymentSessionKey != null && !paymentSessionsCount.ContainsKey(paymentSessionKey))
+            {
+                YPayPlugin.Deinitialize(paymentSessionKey);
+            }
         }
 
         private void InitPlugin()
@@ -72,12 +81,39 @@ namespace YPay
                 MerchantName: MerchantName,
                 MerchantUrl: MerchantUrl ?? "",
                 IsSandbox: IsSandbox);
-            YPayPlugin.Init(config);
+            paymentSessionKey = YPayPlugin.Init(config);
+            IncrementPaymentSessionsCount();
         }
 
         private async Task StartPaymentAsync()
         {
-            YPayPlugin.StartPayment(resultListener: paymentResultListener, paymentUrl: await paymentDataProvider.GetPaymentUrlAsync());
+            var paymentUrl = await paymentDataProvider.GetPaymentUrlAsync();
+            YPayPlugin.StartPayment(paymentResultListener, paymentUrl, paymentSessionKey);
+        }
+
+        private void IncrementPaymentSessionsCount()
+        {
+            if (paymentSessionKey == null) return;
+
+            if (!paymentSessionsCount.ContainsKey(paymentSessionKey))
+            {
+                paymentSessionsCount[paymentSessionKey] = 0;
+            }
+            paymentSessionsCount[paymentSessionKey]++;
+        }
+
+        private void DecrementPaymentSessionsCount()
+        {
+            if (paymentSessionKey == null) return;
+
+            if (paymentSessionsCount.ContainsKey(paymentSessionKey))
+            {
+                paymentSessionsCount[paymentSessionKey]--;
+                if (paymentSessionsCount[paymentSessionKey] == 0)
+                {
+                    paymentSessionsCount.Remove(paymentSessionKey);
+                }
+            }
         }
     }
 }
