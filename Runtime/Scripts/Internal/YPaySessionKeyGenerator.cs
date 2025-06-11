@@ -6,9 +6,10 @@ namespace YPay
 {
     internal static class YPaySessionKeyGenerator
     {
-        internal static string GenerateSessionKey(string prefix)
+        internal static string GenerateSessionKey(string merchantId, bool isSandbox)
         {
-            return $"{prefix}.{Guid.NewGuid()}";
+            string sandbox = isSandbox ? "sandbox" : "prod";
+            return $"{merchantId}.{sandbox}";
         }
     }
 }

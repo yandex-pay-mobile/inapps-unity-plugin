@@ -15,7 +15,6 @@ internal class YPayResultListenerProxy : AndroidJavaProxy
 
     internal void OnResult(string message)
     {
-        YPayPlugin.OnPaymentCompleted();
         var result = YPayResultParser.Parse(message);
         listener.OnPaymentResult(result);
     }

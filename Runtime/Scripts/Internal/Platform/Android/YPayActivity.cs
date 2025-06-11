@@ -10,16 +10,28 @@ namespace YPay.Android
         const string YPayActivityClassName = "com.yandex.pay.inapps.YPayActivity";
         const string IntentClassName = "android.content.Intent";
 
-        internal static void SavePaymentSession(PaymentSession paymentSession)
+        internal static void SavePaymentSession(string paymentSessionKey, PaymentSession paymentSession)
         {
             var ypayActivityClass = new AndroidJavaClass(YPayActivityClassName);
-            ypayActivityClass.CallStatic("setPaymentSession", paymentSession.Instance);
+            ypayActivityClass.CallStatic("savePaymentSession", paymentSessionKey, paymentSession.Instance);
         }
 
-        internal static void SaveResultListener(YPayResultListenerProxy resultListener)
+        internal static bool IsPaymentSessionExists(string paymentSessionKey)
         {
             var ypayActivityClass = new AndroidJavaClass(YPayActivityClassName);
-            ypayActivityClass.CallStatic("setResultListener", resultListener);
+            return ypayActivityClass.CallStatic<bool>("isPaymentSessionExists", paymentSessionKey);
+        }
+
+        internal static void RemovePaymentSession(string paymentSessionKey)
+        {
+            var ypayActivityClass = new AndroidJavaClass(YPayActivityClassName);
+            ypayActivityClass.CallStatic("removePaymentSession", paymentSessionKey);
+        }
+
+        internal static void SaveResultListener(string paymentSessionKey, YPayResultListenerProxy resultListener)
+        {
+            var ypayActivityClass = new AndroidJavaClass(YPayActivityClassName);
+            ypayActivityClass.CallStatic("saveResultListener", paymentSessionKey, resultListener);
         }
 
         internal static void Launch(Dictionary<string, string> extras)
@@ -38,8 +50,8 @@ namespace YPay.Android
         internal static void ClearStatic()
         {
             var ypayActivityClass = new AndroidJavaClass(YPayActivityClassName);
-            ypayActivityClass.CallStatic("clearPaymentSession");
-            ypayActivityClass.CallStatic("clearResultListener");
+            ypayActivityClass.CallStatic("clearPaymentSessions");
+            ypayActivityClass.CallStatic("clearResultListeners");
         }
     }
 }
