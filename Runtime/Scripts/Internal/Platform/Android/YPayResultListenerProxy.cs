@@ -1,21 +1,23 @@
 // Yandex Pay InApps Plugin.
 
 using UnityEngine;
-using YPay;
 
-internal class YPayResultListenerProxy : AndroidJavaProxy
+namespace YPay.Android
 {
-    private const string ClassName = "com.yandex.pay.inapps.YPayActivityResultListener";
-    private IYPayResultListener listener;
-
-    internal YPayResultListenerProxy(IYPayResultListener listener) : base(ClassName)
+    internal class YPayResultListenerProxy : AndroidJavaProxy
     {
-        this.listener = listener;
-    }
+        private const string ClassName = "com.yandex.pay.inapps.YPayActivityResultListener";
+        private IYPayResultListener listener;
 
-    internal void OnResult(string message)
-    {
-        var result = YPayResultParser.Parse(message);
-        listener.OnPaymentResult(result);
+        internal YPayResultListenerProxy(IYPayResultListener listener) : base(ClassName)
+        {
+            this.listener = listener;
+        }
+
+        internal void OnResult(string message)
+        {
+            var result = YPayResultParser.Parse(message);
+            listener.OnPaymentResult(result);
+        }
     }
 }

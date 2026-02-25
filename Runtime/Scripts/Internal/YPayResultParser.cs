@@ -20,7 +20,7 @@ namespace YPay
                 case "cancelled":
                     return new IYPayResult.Cancelled();
                 default:
-                    Debug.LogError($"Unknown status: {status}");
+                    Debug.LogError($"Unknown payment status: {status}");
                     return null;
             }
         }

@@ -16,9 +16,17 @@ namespace YPay.Android
             ypayActivityClass.CallStatic("savePaymentSession", paymentSessionKey, paymentSession.Instance);
         }
 
-        internal static bool IsPaymentSessionExists(string paymentSessionKey)
+        internal static PaymentSession GetPaymentSession(string paymentSessionKey)
         {
             var ypayActivityClass = new AndroidJavaClass(YPayActivityClassName);
+            var paymentSessionObject = ypayActivityClass.CallStatic<AndroidJavaObject>("getPaymentSession", paymentSessionKey);
+            if (paymentSessionObject == null || paymentSessionObject.GetRawObject() == null) return null;
+            return new(paymentSessionObject);
+        }
+
+        internal static bool IsPaymentSessionExists(string paymentSessionKey)
+        {
+            using var ypayActivityClass = new AndroidJavaClass(YPayActivityClassName);
             return ypayActivityClass.CallStatic<bool>("isPaymentSessionExists", paymentSessionKey);
         }
 
