@@ -20,13 +20,13 @@ namespace YPay.Android
 
         private static PaymentSession GetYandexPaymentSession(AndroidJavaObject context, AndroidJavaObject config, AndroidJavaObject paymentSessionKey)
         {
-            var ypay = new AndroidJavaObject(ClassName);
+            using var ypay = new AndroidJavaObject(ClassName);
             return new(ypay.Call<AndroidJavaObject>("getYandexPaymentSession", context, config, paymentSessionKey));
         }
 
         private static void RemovePaymentSession(AndroidJavaObject context, AndroidJavaObject paymentSessionKey)
         {
-            var ypay = new AndroidJavaObject(ClassName);
+            using var ypay = new AndroidJavaObject(ClassName);
             ypay.Call("removePaymentSession", context, paymentSessionKey);
         }
     }

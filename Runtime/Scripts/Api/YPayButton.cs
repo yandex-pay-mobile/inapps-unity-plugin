@@ -74,6 +74,7 @@ namespace YPay
             }
         }
 
+#pragma warning disable CS4014
         private void InitPlugin()
         {
             var config = new YPayConfig(
@@ -83,6 +84,17 @@ namespace YPay
                 IsSandbox: IsSandbox);
             paymentSessionKey = YPayPlugin.Init(config);
             IncrementPaymentSessionsCount();
+            RestoreUnhandledPaymentSuccessesAsync();
+        }
+#pragma warning restore CS4014
+
+        private async Task RestoreUnhandledPaymentSuccessesAsync()
+        {
+            var successes = await YPayPlugin.GetUnhandledPaymentSuccessesAsync(paymentSessionKey);
+            foreach (var success in successes)
+            {
+                paymentResultListener.OnPaymentResult(success);
+            }
         }
 
         private async Task StartPaymentAsync()

@@ -10,7 +10,7 @@ import com.yandex.pay.inapps.YPayContractParams;
 import com.yandex.pay.inapps.PaymentData;
 import com.yandex.pay.inapps.YPayResult;
 import com.unity3d.player.UnityPlayer;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class YPayActivity extends ComponentActivity {
 
@@ -18,51 +18,42 @@ public class YPayActivity extends ComponentActivity {
     private static final String ON_RESULT = "OnResult";
     private static final String PAYMENT_URL = "paymentUrl";
     private static final String PAYMENT_SESSION_KEY = "paymentSessionKey";
-    private static HashMap<String, PaymentSession> paymentSessions;
-    private static HashMap<String, YPayActivityResultListener> resultListeners;
+    private static ConcurrentHashMap<String, PaymentSession> paymentSessions = new ConcurrentHashMap<String, PaymentSession>();
+    private static ConcurrentHashMap<String, YPayActivityResultListener> resultListeners = new ConcurrentHashMap<String, YPayActivityResultListener>();
 
     public static void savePaymentSession(String sessionKey, PaymentSession paymentSession) {
-        if (paymentSessions == null) {
-            paymentSessions = new HashMap<String, PaymentSession>();
-        }
         paymentSessions.put(sessionKey, paymentSession);
     }
 
     public static boolean isPaymentSessionExists(String sessionKey) {
-        if (paymentSessions == null) {
-            return false;
-        }
         return paymentSessions.containsKey(sessionKey);
     }
 
-    public static void removePaymentSession(String sessionKey) {
-        if (paymentSessions != null) {
-            paymentSessions.remove(sessionKey);
+    public static PaymentSession getPaymentSession(String sessionKey) {
+        if (!isPaymentSessionExists(sessionKey)) {
+            return null;
         }
+        return paymentSessions.get(sessionKey);
+    }
+
+    public static void removePaymentSession(String sessionKey) {
+        paymentSessions.remove(sessionKey);
     }
 
     public static void clearPaymentSessions() {
         paymentSessions.clear();
-        paymentSessions = null;
     }
 
     public static void saveResultListener(String sessionKey, YPayActivityResultListener resultListener) {
-        if (resultListeners == null) {
-            resultListeners = new HashMap<String, YPayActivityResultListener>();
-        }
         resultListeners.put(sessionKey, resultListener);
     }
 
     public static boolean isResultListenerExists(String sessionKey) {
-        if (resultListeners == null) {
-            return false;
-        }
         return resultListeners.containsKey(sessionKey);
     }
 
     public static void clearResultListeners() {
         resultListeners.clear();
-        resultListeners = null;
     }
 
     @Override
@@ -76,6 +67,11 @@ public class YPayActivity extends ComponentActivity {
         }
 
         PaymentSession paymentSession = paymentSessions.get(paymentSessionKey);
+        if (paymentSession == null) {
+            finishWithResult(paymentSessionKey, new YPayResult.Failure("incorrect payment session key", null));
+            return;
+        }
+
         String paymentUrl = getIntent().getStringExtra(PAYMENT_URL);
         if (paymentUrl == null) {
             finishWithResult(paymentSessionKey, new YPayResult.Failure("incorrect payment url", null));
